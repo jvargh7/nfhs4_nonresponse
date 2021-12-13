@@ -1,0 +1,108 @@
+child <- readRDS(paste0(path_response_folder,"/working/iapr_child.RDS")) %>% 
+  mutate(
+    age_category = cut(hc1,breaks=c(0,6,24,60),include.lowest=TRUE,right=FALSE),
+    schooling = case_when(hc61 == 0 ~ "No education",
+                          hc61 == 1 ~ "Primary",
+                          hc61 == 2 ~ "Secondary",
+                          hc61 == 3 ~ "Higher",
+                          hc61 == 8 ~ "Don't know",
+                          TRUE ~ NA_character_),
+    caste = case_when(sh36 == 1 ~ "Scheduled Caste",
+                      sh36 == 2 ~ "Scheduled Tribe",
+                      sh36 == 3 ~ "OBC",
+                      sh36 %in% c(4,8,9) | is.na(sh36) ~ "General or Dont know/Missing",
+                      TRUE ~ NA_character_),
+    religion = case_when(sh34 == 1 ~ "Hindu",
+                         sh34 == 2 ~ "Muslim",
+                         TRUE ~ "Other"),
+    
+    wealth = factor(hv270,levels=c(1:5),labels=paste0("Q",c(1:5))),
+    rural = case_when(hv025 == 1 ~ 0,
+                      hv025 == 2 ~ 1,
+                      TRUE ~ NA_real_),
+    
+    insurance = case_when(sh54 == 1 ~ 1,
+                          sh54 == 0 ~ 0,
+                          sh54 == 8 ~ 0, # Dont know
+                          TRUE ~ NA_real_),
+    
+    # married = case_when()
+    nonna_height = case_when(is.na(hc3) ~ 0,
+                             TRUE ~ 1),
+    present_height = case_when(is.na(hc3) ~ NA_real_,
+                               hc3 == 9994 ~ 0,
+                               TRUE ~ 1),
+    consented_height = case_when(is.na(hc3) ~ NA_real_,
+                                 hc3 == 9994 ~ NA_real_,
+                                 hc3 == 9995 ~ 0,
+                                 TRUE ~ 1),
+    valid_height = case_when(is.na(hc3) ~ NA_real_,
+                             hc3 %in% c(9996,9999) ~ 0,
+                             hc3 %in% c(9994,9995) ~ NA_real_,
+                             hc3 %in% c(100:2000) ~ 1,
+                             TRUE ~ 0),
+    nonna_weight = case_when(is.na(hc2) ~ 0,
+                             TRUE ~ 1),
+    present_weight = case_when(is.na(hc2) ~ NA_real_,
+                               hc2 == 9994 ~ 0,
+                               TRUE ~ 1),
+    consented_weight = case_when(is.na(hc2) ~ NA_real_,
+                                 hc2 == 9994 ~ NA_real_,
+                                 hc2 == 9995 ~ 0,
+                                 TRUE ~ 1),
+    valid_weight = case_when(is.na(hc2) ~ NA_real_,
+                             hc2 %in% c(9996,9999) ~ 0,
+                             hc2 %in% c(9994,9995) ~ NA_real_,
+                             hc2 %in% c(5:9990) ~ 1,
+                             TRUE ~ 0),
+    
+    nonna_hb = case_when(hc1 < 6 ~ NA_real_,
+                         is.na(hc55) ~ 0,
+                             TRUE ~ 1),
+    present_hb = case_when(hc1 < 6 ~ NA_real_,
+                           is.na(hc55) ~ NA_real_,
+                           hc55 == 3 ~ 0,
+                           TRUE ~ 1),
+    consented_hb = case_when(hc1 < 6 ~ NA_real_,
+                             is.na(hc55) ~ NA_real_,
+                             hc55 == 3 ~ NA_real_,
+                             hc55 == 4 ~ 0,
+                             TRUE ~ 1),
+    valid_hb = case_when(hc1 < 6 ~ NA_real_,
+                         is.na(hc55) ~ NA_real_,
+                         hc55 %in% c(3,4) ~ NA_real_,
+                         hc53 %in% c(10:990) ~ 1,
+                         hc55 %in% c(0,6,9) ~ 0,
+                         is.na(hc55) ~ 0,
+                         TRUE ~ NA_real_),
+    
+  )  %>% 
+  
+  mutate(value_height = case_when(is.na(hc3) ~ NA_real_,
+                                  hc3 %in% c(9996,9999) ~ NA_real_,
+                                  hc3 %in% c(9994,9995) ~ NA_real_,
+                                  hc3 %in% c(100:2000) ~ hc3 %>% as.numeric(.),
+                                  TRUE ~ NA_real_),
+         value_weight = case_when(is.na(hc2) ~ NA_real_,
+                                  hc2 %in% c(9996,9999) ~ NA_real_,
+                                  hc2 %in% c(9994,9995) ~ NA_real_,
+                                  hc2 %in% c(5:9990) ~ hc2 %>% as.numeric(.),
+                                  TRUE ~ NA_real_),
+         value_hb = case_when(hc1 < 6 ~ NA_real_,
+                              is.na(hc55) ~ NA_real_,
+                              hc55 %in% c(3,4) ~ NA_real_,
+                              hc53 %in% c(10:990) ~ hc53 %>% as.numeric(.),
+                              hc55 %in% c(0,6,9) ~ NA_real_,
+                              is.na(hc55) ~ NA_real_,
+                              TRUE ~ NA_real_)
+         
+         ) %>% 
+  mutate(hv024 = factor(hv024,levels=c(1:36),labels=attr(hv024,"labels") %>% attr(.,"names"))) %>% 
+  mutate(weight = hv005/(10^6),
+         state = case_when(shdistri %in% c(494,495,496) ~ "daman and diu",
+                           shdistri %in% c(3,4) ~ "ladakh",
+                           TRUE ~ as.character(hv024))) 
+
+
+saveRDS(child,paste0(path_response_folder,"/working/child cleaned.RDS"))
+
