@@ -70,8 +70,17 @@ summary_table <- bind_rows(
                                              "Glucose","Systolic BP - atleast 1",
                                              "Systolic BP - all")))
 
+write_csv(summary_table,paste0(path_response_folder,"/working/valid measures by state summary.csv"))
+summary_table <- read_csv(paste0(path_response_folder,"/working/valid measures by state summary.csv"))
 
 (summary_table %>% 
+    mutate(variable = factor(variable,levels=c("Weight","Height","HIV","Hemoglobin",
+                                               "Glucose","Systolic BP - atleast 1",
+                                               "Systolic BP - all"))) %>% 
+    mutate(sex = case_when(sex == "Female" ~ "Women",
+                           sex == "Male" ~ "Men",
+                           sex == "Child" ~ "Child",
+                           TRUE ~ NA_character_)) %>% 
     mutate(factsheet_state = case_when(factsheet_state == "Dadra & Nagar Haveli and Daman & Diu" ~ "Dadra & Nagar Haveli",
                              TRUE ~ factsheet_state)) %>% 
   ggplot(data=.,aes(x=variable,y=factsheet_state,fill=proportion)) +
@@ -80,7 +89,7 @@ summary_table <- bind_rows(
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90),
         legend.position = "top")  + 
-  scale_fill_gradient2(low = "red", high = "darkgreen", mid = "yellow",
+  scale_fill_gradient2(low = "black", high = "white", mid = "grey60",
                        midpoint = 0.75, limit = c(0.5,1), space = "Lab",
                        name="") +
   xlab("") + ylab("")) %>% 

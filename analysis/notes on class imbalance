@@ -1,0 +1,12 @@
+Harrell on imbalance: https://www.fharrell.com/post/classification/
+Harrell on improper classification metrics: https://www.fharrell.com/post/class-damage/
+Harrell on diagnostic measures: https://www.youtube.com/watch?v=uULhuuSjBww
+ML Mastery on imbalance: https://machinelearningmastery.com/what-is-imbalanced-classification/
+Stackoverflow:
+https://stats.stackexchange.com/questions/535770/imbalanced-data-to-match-reality-with-random-forest/535793#535793
+https://stats.stackexchange.com/questions/312780/why-is-accuracy-not-the-best-measure-for-assessing-classification-models
+https://stats.stackexchange.com/questions/283170/when-is-unbalanced-data-really-a-problem-in-machine-learning
+https://towardsdatascience.com/why-balancing-classes-is-over-hyped-e382a8a410f7
+If your imbalanced classes are well separable, have good minority class representation,
+and present unique + powerful influences to your outcome variable, then despite being imbalanced,
+the data should pose few problems for building solid predictive models

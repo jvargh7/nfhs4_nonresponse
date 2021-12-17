@@ -2,11 +2,11 @@
 female <- readRDS(paste0(path_response_folder,"/working/iair_clean.RDS")) %>% 
   mutate(
     age_category = cut(ha1,breaks=c(15,25,35,45,55),include.lowest=TRUE,right=FALSE),
-    schooling = case_when(hv106 == 0 ~ "No education",
-                          hv106 == 1 ~ "Primary",
-                          hv106 == 2 ~ "Secondary",
-                          hv106 == 3 ~ "Higher",
-                          hv106 == 8 ~ "Don't know",
+    schooling = case_when(hv106 == 0 ~ "1, No education",
+                          hv106 == 1 ~ "2, Primary",
+                          hv106 == 2 ~ "3, Secondary",
+                          hv106 == 3 ~ "4, Higher",
+                          hv106 == 8 ~ "1, No education",
                           TRUE ~ NA_character_),
     caste = case_when(sh36 == 1 ~ "Scheduled Caste",
                       sh36 == 2 ~ "Scheduled Tribe",
@@ -27,7 +27,13 @@ female <- readRDS(paste0(path_response_folder,"/working/iair_clean.RDS")) %>%
                           sh54 == 8 ~ 0, # Dont know
                           TRUE ~ NA_real_),
     
-    # married = case_when()
+    married = case_when(hv115 == 1 ~ 1,
+                        hv115 %in% c(0,2,3,4,5,8,9) ~ 0,
+                        TRUE ~ NA_real_),
+    pregnant = case_when(ha54 == 1 ~ 1,
+                         ha54 == 0 ~ 0,
+                         ha54 == 9 ~ 0,
+                         TRUE ~ NA_real_),
     nonna_weight = case_when(is.na(ha2) ~ 0,
                              TRUE ~ 1),
     present_weight = case_when(is.na(ha2) ~ NA_real_,
@@ -65,11 +71,19 @@ female <- readRDS(paste0(path_response_folder,"/working/iair_clean.RDS")) %>%
     consented_hb = case_when(ha55 == 3 ~ NA_real_,
                              ha55 == 4 ~ 0,
                              TRUE ~ 1),
-    valid_hb = case_when(is.na(ha55) ~ NA_real_,
-                         ha55 %in% c(3,4) ~ NA_real_,
-                         ha53 %in% c(10:990) ~ 1,
-                         ha55 %in% c(0,6,9) ~ 0,
-                         TRUE ~ NA_real_),
+    reported_hb = case_when(is.na(ha55) ~ NA_real_,
+                            ha55 == 3 ~ NA_real_,
+                            ha55 == 4 ~ NA_real_,
+                            ha55 %in% c(6,9) ~ 0,
+                            ha55 == 0 | ha53 %in% c(10:990) ~ 1,
+                            TRUE ~ 0),
+    valid_hb = case_when(
+                         is.na(ha55) ~ NA_real_,
+                         ha55 == 3 ~ NA_real_,
+                         ha55 == 4 ~ NA_real_,
+                         ha55 %in% c(6,9) ~ NA_real_,
+                         ha53 %in% c(30:250) | ha56 %in% c(30:250) ~ 1,
+                         TRUE ~ 0),
     
     # BP -----------
     selected_biomarker = case_when(shbsel == 1 ~ 1,
@@ -104,12 +118,16 @@ female <- readRDS(paste0(path_response_folder,"/working/iair_clean.RDS")) %>%
                                   shb20 == 1 ~ 1,
                                   shb20 %in% c(2,3) ~ 0,
                                   TRUE ~ NA_real_),
-    valid_glucose = case_when(is.na(shb20) ~ NA_real_,
-                              shb20 %in% c(2,3) ~ NA_real_,
+    reported_glucose = case_when(
+                              # shb20 %in% c(2,3) ~ NA_real_,
                               shb70 %in% c(20:499) ~ 1,
-                              shb20 == 1 ~ 0,
+                              # shb20 == 1 ~ 0,
                               TRUE ~ 0),
-    
+    valid_glucose = case_when(is.na(shb20) ~ NA_real_,
+                                 shb20 %in% c(2,3) ~ NA_real_,
+                                 shb20 == 1 & shb70 %in% c(20:499) ~ 1,
+                                 shb20 == 1 ~ 0,
+                                 TRUE ~ 0),
     # HIV --------
     nonna_hiv = case_when(is.na(ha61) ~ 0,
                           TRUE ~ 1),
@@ -133,6 +151,34 @@ mutate_at(vars(
   shb23s,shb23d,
   shb27s,shb27d),function(x) case_when(as.numeric(x) %in% c(994,995,996,999) ~ NA_real_,
                                        TRUE ~ as.numeric(x))) %>% 
+  mutate(reported_sbp_count = rowSums(!is.na(.[,c("shb16s","shb23s","shb27s")])),
+         
+         reported_dbp_count = rowSums(!is.na(.[,c("shb16d","shb23d","shb27d")])),
+         reported_sbp = case_when(reported_sbp_count == 3 ~ 1,
+                                  reported_sbp_count %in% c(1,2) ~ 0,
+                                  reported_sbp_count == 0 ~ 0),
+         reported_dbp = case_when(reported_dbp_count == 3 ~ 1,
+                                  reported_dbp_count %in% c(1,2) ~ 0,
+                                  reported_dbp_count == 0 ~ 0),
+         reported_sbp_atleast1 = case_when(reported_sbp_count >= 1 ~ 1,
+                                           reported_sbp_count == 0 ~ 0),
+         reported_dbp_atleast1 = case_when(reported_dbp_count >=1 ~ 1,
+                                           reported_dbp_count == 0 ~ 0)
+  ) %>% 
+  
+  mutate(shb16s = case_when(shb10 == 1 ~ shb16s,
+                            TRUE ~ NA_real_),
+         shb16d = case_when(shb10 == 1 ~ shb16d,
+                            TRUE ~ NA_real_),
+         shb23s = case_when(shb21 == 1 ~ shb23s,
+                            TRUE ~ NA_real_),
+         shb23d = case_when(shb21 == 1 ~ shb23d,
+                            TRUE ~ NA_real_),
+         shb27s = case_when(shb25 == 1 ~ shb27s,
+                            TRUE ~ NA_real_),
+         shb27d = case_when(shb25 == 1 ~ shb27d,
+                            TRUE ~ NA_real_)) %>% 
+  
   mutate(valid_sbp_count = rowSums(!is.na(.[,c("shb16s","shb23s","shb27s")])),
          
          valid_dbp_count = rowSums(!is.na(.[,c("shb16d","shb23d","shb27d")])),
@@ -149,8 +195,8 @@ mutate_at(vars(
                                   TRUE ~ NA_real_),
          value_hb = case_when(is.na(ha55) ~ NA_real_,
                               ha55 %in% c(3,4) ~ NA_real_,
-                              ha53 %in% c(10:990) ~ ha53 %>% as.numeric(.),
                               ha55 %in% c(0,6,9) ~ NA_real_,
+                              ha53 %in% c(30:250) | ha56 %in% c(30:250) ~ ha56 %>% as.numeric(.),
                               TRUE ~ NA_real_),
          
          value_sbp_atleast1 = rowMeans(.[,c("shb16s","shb23s","shb27s")],na.rm=TRUE),

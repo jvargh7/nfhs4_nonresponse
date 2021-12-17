@@ -3,7 +3,7 @@ source("preprocessing/nraux04_datasets for descriptive statistics.R")
 
 # Group variables -----------
 all_variables = unique(c(names(male),names(child),names(female)))
-id_variables = c("hv001","hv021","state","hv024","shdistri","weight","hv006","hv007","hv008","hv010","hv011")
+id_variables = c("hv001","hhid","hvidx","hv002","hv021","state","hv024","shdistri","weight","hv006","hv007","hv008","hv010","hv011","schooling_imp")
 
 group_variables = c("age_category","schooling","caste","religion","wealth")
 other_variables = all_variables[!all_variables %in% c(id_variables,group_variables)]
