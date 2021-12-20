@@ -12,6 +12,10 @@ source("analysis/nrmodels05_non response in children with state.R")
 source("analysis/nrmodels06_non response in males with state.R")
 source("analysis/nrmodels07_non response in females with state.R")
 
+source("analysis/nrmodels08_non reporting in children with state.R")
+source("analysis/nrmodels09_non reporting in males with state.R")
+source("analysis/nrmodels10_non reporting in females with state.R")
+
 # Checking for systematically higher predicted probability for delhi --------
 
 # child$pred_height <- child_model_summary[[1]]$predictions$response
