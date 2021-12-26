@@ -2,9 +2,9 @@ male <- readRDS(paste0(path_response_folder,"/working/male cleaned.RDS")) %>%
   dplyr::select(hhid,hvidx,hv001,
                 hv002,hv006,hv007,hv008,
                 hv010,hv011,hv011,
-                hv021,
+                hv021,hv023,
                 state,hv024,shdistri,
-                weight,
+                weight,hweight,
                 
                 hv035, hv041,hv042,
                 
@@ -16,16 +16,16 @@ male <- readRDS(paste0(path_response_folder,"/working/male cleaned.RDS")) %>%
   mutate_at(vars(matches("(nonna|consented|reported|valid|present)_(height|weight|hb|bp|sbp|dbp|glucose)")),
             function(x) case_when(is.na(x) ~ 0,
                                   TRUE ~ x)) %>% 
-  rename(
+  rename(strata = hv023,
          nadults = hv041,
          nchildren = hv035,
          hb_select = hv042) 
 female <- readRDS(paste0(path_response_folder,"/working/female cleaned.RDS")) %>% 
   dplyr::select(v001,
                 v002,v003,
-                hv021,
+                hv021,hv023,
                 state,hv024,shdistri,
-                weight,hv006,hv007,hv008,
+                weight,hweight,hv006,hv007,hv008,
                 hv010,hv011,hv011,
                 hv035, hv041,hv042,
                 
@@ -37,6 +37,7 @@ female <- readRDS(paste0(path_response_folder,"/working/female cleaned.RDS")) %>
   rename(hv001 = v001,
          hv002 = v002,
          hvidx = v003,
+         strata = hv023,
          nadults = hv041,
          nchildren = hv035,
          hb_select = hv042) %>% 
@@ -47,16 +48,16 @@ child <- readRDS(paste0(path_response_folder,"/working/child cleaned.RDS"))%>%
   dplyr::select(hhid,hvidx,hv001,
                 hv002,hv006,hv007,hv008,
                 hv010,hv011,hv011,
-                hv021,
+                hv021,hv023,
                 state,hv024,shdistri,
-                weight,
+                weight,hweight,
                 
                 hv035, hv041,hv042,
                 
                 age_category,schooling,caste,
                 religion, wealth, rural, insurance,
                 contains("_height"),contains("_weight"),
-                contains("_hb"))%>% 
+                contains("_hb")) %>% 
   mutate_at(vars(matches("(nonna|consented|reported|valid|present)_(height|weight)")),~case_when(is.na(.) ~ 0,
                                                                                         TRUE ~ .)) %>% 
   # Only for those older than 6 mo
@@ -64,14 +65,20 @@ child <- readRDS(paste0(path_response_folder,"/working/child cleaned.RDS"))%>%
                                                         is.na(x) ~ 0,
                                                         TRUE ~ x))  %>% 
   rename(
+    strata = hv023,
     nadults = hv041,
     nchildren = hv035,
     hb_select = hv042) %>% 
   mutate(schooling_imp = case_when(is.na(schooling) ~ "1, No education",
-                                   TRUE ~ schooling))
+                                   TRUE ~ schooling),
+         weight = case_when(is.na(weight) ~ hweight,
+                            TRUE ~ weight))
 
 
 # SURVEY DESIGN ------------
+options(survey.lonely.psu="adjust")
+# https://dhsprogram.com/data/Guide-to-DHS-Statistics/Analyzing_DHS_Data.htm
+
 male_surveydesign <- male  %>% 
   as_survey_design(ids = hv001,strata = state,
                    weight = weight,

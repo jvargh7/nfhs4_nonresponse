@@ -8,7 +8,7 @@ valid_variables <- c("valid_height","valid_weight","valid_hb")
 
 # Dataset creation --------
 model_df <- child %>% 
-  dplyr::select(state,shdistri,hv001,
+  dplyr::select(state,shdistri,hv001,strata,
                 one_of(valid_variables),
                 age_category,schooling,schooling_imp, caste,
                 religion, wealth, rural,insurance,

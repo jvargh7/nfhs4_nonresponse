@@ -122,10 +122,11 @@ child <- readRDS(paste0(path_response_folder,"/working/iapr_child.RDS")) %>%
          
          ) %>% 
   mutate(hv024 = factor(hv024,levels=c(1:36),labels=attr(hv024,"labels") %>% attr(.,"names"))) %>% 
-  mutate(weight = hv005/(10^6),
+  mutate(hweight = hv005/(10^6),
+         weight = v005/(10^6),
          state = case_when(shdistri %in% c(494,495,496) ~ "daman and diu",
                            shdistri %in% c(3,4) ~ "ladakh",
-                           TRUE ~ as.character(hv024))) 
+                           TRUE ~ as.character(hv024)))
 
 
 saveRDS(child,paste0(path_response_folder,"/working/child cleaned.RDS"))

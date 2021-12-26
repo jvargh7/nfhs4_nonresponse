@@ -12,7 +12,7 @@ female_df <-  readRDS(paste0(path_ecological_analysis,"/working/iair74_clean.RDS
                  "v002" = "hv002",
                  "v003" = "hvidx")) %>% 
   left_join(female %>% 
-              dplyr::select(hv001,hv002,hvidx,
+              dplyr::select(hv001,hv002,hvidx,strata,
                             wealth,schooling,caste,religion),
             by = c("v001"="hv001",
                    "v002" = "hv002",
@@ -127,57 +127,57 @@ female_indicators <- map2_dfr(indicators,weight_vars,
                               print(x);
                               female_df$ipw = female_df %>% dplyr::select(one_of(paste0("ipw",y))) %>% pull();
                               female_df$valid = female_df %>% dplyr::select(one_of(paste0("valid",y))) %>% pull();
-                              
-                              ipw = female_df %>% 
-                                mutate(new_weight = weight*ipw) %>% 
+
+                              ipw = female_df %>%
+                                mutate(new_weight = weight*ipw) %>%
                                 dplyr::filter(valid == 1 & !is.na(valid)) %>%
                                 as_survey_design(ids = v001,strata = state,
                                                  weight = new_weight,
                                                  nest = TRUE,
                                                  variance = "YG",pps = "brewer",
-                                                 variables = c(x,"state")) %>% 
-                                group_by(state) %>% 
-                                summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE)) %>% 
+                                                 variables = c(x,"state")) %>%
+                                group_by(state) %>%
+                                summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE)) %>%
                                 mutate(state = str_replace(state,"&","and"));
-                              
-                              unadjusted = female_df %>% 
+
+                              unadjusted = female_df %>%
                                 dplyr::filter(valid == 1 & !is.na(valid)) %>%
                                 as_survey_design(ids = v001,strata = state,
                                                  weight = weight,
                                                  nest = TRUE,
                                                  variance = "YG",pps = "brewer",
-                                                 variables = c(x,"state")) %>% 
-                                group_by(state) %>% 
-                                summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE)) %>% 
+                                                 variables = c(x,"state")) %>%
+                                group_by(state) %>%
+                                summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE)) %>%
                                 mutate(state = str_replace(state,"&","and"));
-                              
-                              original = female_df %>% 
+
+                              original = female_df %>%
                                 # dplyr::filter(valid == 1 & !is.na(valid)) %>%
                                 as_survey_design(ids = v001,strata = state,
                                                  weight = weight,
                                                  nest = TRUE,
                                                  variance = "YG",pps = "brewer",
-                                                 variables = c(x,"state")) %>% 
-                                group_by(state) %>% 
-                                summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE)) %>% 
+                                                 variables = c(x,"state")) %>%
+                                group_by(state) %>%
+                                summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE)) %>%
                                 mutate(state = str_replace(state,"&","and"));
-                              
+
                               female_df$ipw = NULL;
                               female_df$valid = NULL;
-                              
+
                               left_join(ipw %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_ipw")),
                                         unadjusted %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_unadj")),
-                                        by="state") %>% 
+                                        by="state") %>%
                                 left_join(original %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_orig")),
-                                          by = "state") %>% 
+                                          by = "state") %>%
                                 mutate(indicator = x,
-                                       ipw = y) %>% 
+                                       ipw = y) %>%
                                 return(.)
-                              
-                              
+
+
                             })
 
-write_csv(female_indicators,paste0(path_response_folder,"/working/ipw weighted female estimates at state level.csv"))  
+write_csv(female_indicators,paste0(path_response_folder,"/working/ipw weighted female estimates at state level.csv"))
 
 
 # WEALTH ------------
@@ -190,6 +190,66 @@ female_indicators_wealth <- map2_dfr(indicators,weight_vars,
                                 print(x);
                                 female_df$ipw = female_df %>% dplyr::select(one_of(paste0("ipw",y))) %>% pull();
                                 female_df$valid = female_df %>% dplyr::select(one_of(paste0("valid",y))) %>% pull();
+
+                                ipw = female_df %>%
+                                  mutate(new_weight = weight*ipw) %>%
+                                  dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                  as_survey_design(ids = v001,strata = state,
+                                                   weight = new_weight,
+                                                   nest = TRUE,
+                                                   variance = "YG",pps = "brewer",
+                                                   variables = c(x,"wealth")) %>%
+                                  group_by(wealth) %>%
+                                  summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+
+                                unadjusted = female_df %>%
+                                  dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                  as_survey_design(ids = v001,strata = state,
+                                                   weight = weight,
+                                                   nest = TRUE,
+                                                   variance = "YG",pps = "brewer",
+                                                   variables = c(x,"wealth")) %>%
+                                  group_by(wealth) %>%
+                                  summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+
+                                original = female_df %>%
+                                  # dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                  as_survey_design(ids = v001,strata = state,
+                                                   weight = weight,
+                                                   nest = TRUE,
+                                                   variance = "YG",pps = "brewer",
+                                                   variables = c(x,"wealth")) %>%
+                                  group_by(wealth) %>%
+                                  summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+
+                                female_df$ipw = NULL;
+                                female_df$valid = NULL;
+
+                                left_join(ipw %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_ipw")),
+                                          unadjusted %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_unadj")),
+                                          by="wealth") %>%
+                                  left_join(original %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_orig")),
+                                            by = "wealth") %>%
+
+                                  mutate(indicator = x,
+                                         ipw = y) %>%
+                                  return(.)
+
+
+                              })
+
+write_csv(female_indicators_wealth,paste0(path_response_folder,"/working/ipw weighted female estimates at wealth level.csv"))
+
+# DISTRICT ------------
+
+indicators <- c("S86","S88","S95","S100","S106")
+weight_vars <- c("_weight","_weight","_hb","_glucose","_sbp_atleast1")
+
+female_indicators_district <- map2_dfr(indicators,weight_vars,
+                              function(x,y){
+                                print(x);
+                                female_df$ipw = female_df %>% dplyr::select(one_of(paste0("ipw",y))) %>% pull();
+                                female_df$valid = female_df %>% dplyr::select(one_of(paste0("valid",y))) %>% pull();
                                 
                                 ipw = female_df %>% 
                                   mutate(new_weight = weight*ipw) %>% 
@@ -198,8 +258,8 @@ female_indicators_wealth <- map2_dfr(indicators,weight_vars,
                                                    weight = new_weight,
                                                    nest = TRUE,
                                                    variance = "YG",pps = "brewer",
-                                                   variables = c(x,"wealth")) %>% 
-                                  group_by(wealth) %>% 
+                                                   variables = c(x,"sdistri")) %>% 
+                                  group_by(sdistri) %>% 
                                   summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
                                 
                                 unadjusted = female_df %>% 
@@ -208,8 +268,8 @@ female_indicators_wealth <- map2_dfr(indicators,weight_vars,
                                                    weight = weight,
                                                    nest = TRUE,
                                                    variance = "YG",pps = "brewer",
-                                                   variables = c(x,"wealth")) %>% 
-                                  group_by(wealth) %>% 
+                                                   variables = c(x,"sdistri")) %>% 
+                                  group_by(sdistri) %>% 
                                   summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
                                 
                                 original = female_df %>% 
@@ -218,8 +278,8 @@ female_indicators_wealth <- map2_dfr(indicators,weight_vars,
                                                    weight = weight,
                                                    nest = TRUE,
                                                    variance = "YG",pps = "brewer",
-                                                   variables = c(x,"wealth")) %>% 
-                                  group_by(wealth) %>% 
+                                                   variables = c(x,"sdistri")) %>% 
+                                  group_by(sdistri) %>% 
                                   summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
                                 
                                 female_df$ipw = NULL;
@@ -227,10 +287,9 @@ female_indicators_wealth <- map2_dfr(indicators,weight_vars,
                                 
                                 left_join(ipw %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_ipw")),
                                           unadjusted %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_unadj")),
-                                          by="wealth") %>% 
+                                          by="sdistri") %>% 
                                   left_join(original %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_orig")),
-                                            by = "wealth") %>% 
-                                  
+                                            by = "sdistri") %>% 
                                   mutate(indicator = x,
                                          ipw = y) %>% 
                                   return(.)
@@ -238,4 +297,186 @@ female_indicators_wealth <- map2_dfr(indicators,weight_vars,
                                 
                               })
 
-write_csv(female_indicators_wealth,paste0(path_response_folder,"/working/ipw weighted female estimates at wealth level.csv"))  
+write_csv(female_indicators_district,paste0(path_response_folder,"/working/ipw weighted female estimates at district level.csv"))  
+
+
+# SCHOOLING ------------
+
+indicators <- c("S86","S88","S95","S100","S106")
+weight_vars <- c("_weight","_weight","_hb","_glucose","_sbp_atleast1")
+
+female_indicators_schooling <- map2_dfr(indicators,weight_vars,
+                                     function(x,y){
+                                       print(x);
+                                       female_df$ipw = female_df %>% dplyr::select(one_of(paste0("ipw",y))) %>% pull();
+                                       female_df$valid = female_df %>% dplyr::select(one_of(paste0("valid",y))) %>% pull();
+                                       
+                                       ipw = female_df %>% 
+                                         mutate(new_weight = weight*ipw) %>% 
+                                         dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                         as_survey_design(ids = v001,strata = state,
+                                                          weight = new_weight,
+                                                          nest = TRUE,
+                                                          variance = "YG",pps = "brewer",
+                                                          variables = c(x,"schooling")) %>% 
+                                         group_by(schooling) %>% 
+                                         summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+                                       
+                                       unadjusted = female_df %>% 
+                                         dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                         as_survey_design(ids = v001,strata = state,
+                                                          weight = weight,
+                                                          nest = TRUE,
+                                                          variance = "YG",pps = "brewer",
+                                                          variables = c(x,"schooling")) %>% 
+                                         group_by(schooling) %>% 
+                                         summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+                                       
+                                       original = female_df %>% 
+                                         # dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                         as_survey_design(ids = v001,strata = state,
+                                                          weight = weight,
+                                                          nest = TRUE,
+                                                          variance = "YG",pps = "brewer",
+                                                          variables = c(x,"schooling")) %>% 
+                                         group_by(schooling) %>% 
+                                         summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+                                       
+                                       female_df$ipw = NULL;
+                                       female_df$valid = NULL;
+                                       
+                                       left_join(ipw %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_ipw")),
+                                                 unadjusted %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_unadj")),
+                                                 by="schooling") %>% 
+                                         left_join(original %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_orig")),
+                                                   by = "schooling") %>% 
+                                         
+                                         mutate(indicator = x,
+                                                ipw = y) %>% 
+                                         return(.)
+                                       
+                                       
+                                     })
+
+write_csv(female_indicators_schooling,paste0(path_response_folder,"/working/ipw weighted female estimates at schooling level.csv"))  
+
+# CASTE ------------
+
+indicators <- c("S86","S88","S95","S100","S106")
+weight_vars <- c("_weight","_weight","_hb","_glucose","_sbp_atleast1")
+
+female_indicators_caste <- map2_dfr(indicators,weight_vars,
+                                       function(x,y){
+                                         print(x);
+                                         female_df$ipw = female_df %>% dplyr::select(one_of(paste0("ipw",y))) %>% pull();
+                                         female_df$valid = female_df %>% dplyr::select(one_of(paste0("valid",y))) %>% pull();
+                                         
+                                         ipw = female_df %>% 
+                                           mutate(new_weight = weight*ipw) %>% 
+                                           dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                           as_survey_design(ids = v001,strata = state,
+                                                            weight = new_weight,
+                                                            nest = TRUE,
+                                                            variance = "YG",pps = "brewer",
+                                                            variables = c(x,"caste")) %>% 
+                                           group_by(caste) %>% 
+                                           summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+                                         
+                                         unadjusted = female_df %>% 
+                                           dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                           as_survey_design(ids = v001,strata = state,
+                                                            weight = weight,
+                                                            nest = TRUE,
+                                                            variance = "YG",pps = "brewer",
+                                                            variables = c(x,"caste")) %>% 
+                                           group_by(caste) %>% 
+                                           summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+                                         
+                                         original = female_df %>% 
+                                           # dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                           as_survey_design(ids = v001,strata = state,
+                                                            weight = weight,
+                                                            nest = TRUE,
+                                                            variance = "YG",pps = "brewer",
+                                                            variables = c(x,"caste")) %>% 
+                                           group_by(caste) %>% 
+                                           summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+                                         
+                                         female_df$ipw = NULL;
+                                         female_df$valid = NULL;
+                                         
+                                         left_join(ipw %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_ipw")),
+                                                   unadjusted %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_unadj")),
+                                                   by="caste") %>% 
+                                           left_join(original %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_orig")),
+                                                     by = "caste") %>% 
+                                           
+                                           mutate(indicator = x,
+                                                  ipw = y) %>% 
+                                           return(.)
+                                         
+                                         
+                                       })
+
+write_csv(female_indicators_caste,paste0(path_response_folder,"/working/ipw weighted female estimates at caste level.csv"))  
+
+
+# RELIGION ------------
+
+indicators <- c("S86","S88","S95","S100","S106")
+weight_vars <- c("_weight","_weight","_hb","_glucose","_sbp_atleast1")
+
+female_indicators_religion <- map2_dfr(indicators,weight_vars,
+                                        function(x,y){
+                                          print(x);
+                                          female_df$ipw = female_df %>% dplyr::select(one_of(paste0("ipw",y))) %>% pull();
+                                          female_df$valid = female_df %>% dplyr::select(one_of(paste0("valid",y))) %>% pull();
+                                          
+                                          ipw = female_df %>% 
+                                            mutate(new_weight = weight*ipw) %>% 
+                                            dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                            as_survey_design(ids = v001,strata = state,
+                                                             weight = new_weight,
+                                                             nest = TRUE,
+                                                             variance = "YG",pps = "brewer",
+                                                             variables = c(x,"religion")) %>% 
+                                            group_by(religion) %>% 
+                                            summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+                                          
+                                          unadjusted = female_df %>% 
+                                            dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                            as_survey_design(ids = v001,strata = state,
+                                                             weight = weight,
+                                                             nest = TRUE,
+                                                             variance = "YG",pps = "brewer",
+                                                             variables = c(x,"religion")) %>% 
+                                            group_by(religion) %>% 
+                                            summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+                                          
+                                          original = female_df %>% 
+                                            # dplyr::filter(valid == 1 & !is.na(valid)) %>%
+                                            as_survey_design(ids = v001,strata = state,
+                                                             weight = weight,
+                                                             nest = TRUE,
+                                                             variance = "YG",pps = "brewer",
+                                                             variables = c(x,"religion")) %>% 
+                                            group_by(religion) %>% 
+                                            summarize_all(~survey_mean(.,vartype="ci",na.rm=TRUE));
+                                          
+                                          female_df$ipw = NULL;
+                                          female_df$valid = NULL;
+                                          
+                                          left_join(ipw %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_ipw")),
+                                                    unadjusted %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_unadj")),
+                                                    by="religion") %>% 
+                                            left_join(original %>% rename_at(vars(starts_with(x)),~paste0(str_replace(.,x,"proportion"),"_orig")),
+                                                      by = "religion") %>% 
+                                            
+                                            mutate(indicator = x,
+                                                   ipw = y) %>% 
+                                            return(.)
+                                          
+                                          
+                                        })
+
+write_csv(female_indicators_religion,paste0(path_response_folder,"/working/ipw weighted female estimates at religion level.csv"))  

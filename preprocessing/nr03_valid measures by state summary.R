@@ -6,7 +6,7 @@ all_variables = unique(c(names(male),names(child),names(female)))
 
 valid_variables <- c(all_variables[str_detect(all_variables,"valid")],"consented_hiv")
 
-
+print("Male")
 male_summary_means <- male_surveydesign %>% 
   group_by(state) %>% 
   summarize_at(vars(one_of(valid_variables)),.funs = list(mean = ~survey_mean(.,na.rm=TRUE,vartype="ci"))) %>% 
@@ -16,6 +16,7 @@ male_summary_means <- male_surveydesign %>%
                          TRUE ~ "proportion")) %>% 
   pivot_wider(names_from=est,values_from=value)
 
+print("Female")
 
 female_summary_means <- female_surveydesign %>% 
   group_by(state) %>% 
@@ -25,6 +26,8 @@ female_summary_means <- female_surveydesign %>%
                          est == "_upp" ~ "proportion_upp",
                          TRUE ~ "proportion")) %>% 
   pivot_wider(names_from=est,values_from=value)
+
+print("Child")
 
 child_summary_means <- child_surveydesign %>% 
   group_by(state) %>% 

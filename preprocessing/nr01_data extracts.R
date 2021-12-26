@@ -7,16 +7,23 @@ nonresponse_variables <- readxl::read_excel(paste0(path_response_folder,"/workin
 
 # Children ----------
 
+iakr_extract <- haven::read_dta(paste0(path_india_raw_data,"/IAKR74DT/IAKR74FL.dta"),
+                                col_select = c("midx","v001","v002","v005"))
+
 iapr_child <- haven::read_dta(paste0(path_india_raw_data,"/IAPR74DT/IAPR74FL.dta"),
                        col_select = na.omit(nonresponse_variables$child)) %>% 
-  dplyr::filter(!is.na(hc1))
+  dplyr::filter(!is.na(hc1)) %>% 
+  left_join(iakr_extract,
+            by=c("hvidx"="midx",
+                 "hv002" = "v002",
+                 "hv001" = "v001"))
 
 saveRDS(iapr_child,paste0(path_response_folder,"/working/iapr_child.RDS"))
 rm(iapr_child)
 
 # Women ------------
 iair_extract <- haven::read_dta(paste0(path_india_raw_data,"/IAIR74DT/IAIR74FL.dta"),
-                         col_select = na.omit(nonresponse_variables$female_iair))
+                         col_select = c(na.omit(nonresponse_variables$female_iair),"v005","v015"))
 
 iapr_female <- haven::read_dta(paste0(path_india_raw_data,"/IAPR74DT/IAPR74FL.dta"),
                          col_select = na.omit(nonresponse_variables$female)) %>% 
@@ -34,7 +41,7 @@ rm(iair_clean,iair_extract,iapr_female)
 # Men ------------
 
 iamr_extract <- haven::read_dta(paste0(path_india_raw_data,"/IAMR74DT/IAMR74FL.dta"),
-                         col_select = na.omit(nonresponse_variables$male_iamr)) 
+                         col_select = c(na.omit(nonresponse_variables$male_iamr),"mv005")) 
 
 iapr_male <- haven::read_dta(paste0(path_india_raw_data,"/IAPR74DT/IAPR74FL.dta"),
                       col_select = na.omit(nonresponse_variables$male)) %>% 

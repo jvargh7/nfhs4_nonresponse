@@ -6,7 +6,7 @@ path_ecological_analysis <- "C:/Cloud/OneDrive - Emory University/Papers/NFHS5 E
 
 library(tidyverse)
 library(srvyr)
-
+options(survey.lonely.psu="adjust")
 
 
 

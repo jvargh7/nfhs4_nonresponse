@@ -12,7 +12,7 @@ female_model_summary <- readRDS(paste0(path_response_folder,"/working/female non
 
 child_weights <- child %>% 
   dplyr::select(hhid,hvidx,hv001,
-                hv002,hv006,hv007,hv008,hv021,state,hv024,shdistri,weight,
+                hv002,hv006,hv007,hv008,hv021,state,hv024,shdistri,weight,hweight,
                 valid_height,valid_weight,valid_hb)
   
 
@@ -26,7 +26,7 @@ saveRDS(child_weights,paste0(path_response_folder,"/child weights.RDS"))
 
 female_weights <- female %>% 
   dplyr::select(hvidx,hv001,
-                hv002,hv006,hv007,hv008,hv021,state,hv024,shdistri,weight,
+                hv002,hv006,hv007,hv008,hv021,state,hv024,shdistri,weight,hweight,
                 valid_height,valid_weight,valid_hb,
                 valid_sbp,valid_sbp_atleast1,valid_glucose,consented_hiv)
 
@@ -44,7 +44,7 @@ saveRDS(female_weights,paste0(path_response_folder,"/female weights.RDS"))
 
 male_weights <- male %>% 
   dplyr::select(hhid,hvidx,hv001,
-                hv002,hv006,hv007,hv008,hv021,state,hv024,shdistri,weight,
+                hv002,hv006,hv007,hv008,hv021,state,hv024,shdistri,weight,hweight,
                 valid_height,valid_weight,valid_hb,
                 valid_sbp,valid_sbp_atleast1,valid_glucose,consented_hiv)
 
