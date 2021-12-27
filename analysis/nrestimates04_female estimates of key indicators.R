@@ -1,7 +1,7 @@
 
 source("preprocessing/nraux04_datasets for descriptive statistics.R")
 
-female_weights <- readRDS(paste0(path_response_folder,"/female weights.RDS"))
+female_weights <- readRDS(paste0(path_response_folder,"/working/female weights.RDS"))
 
 
 

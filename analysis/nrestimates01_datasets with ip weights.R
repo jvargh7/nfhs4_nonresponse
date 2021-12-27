@@ -20,7 +20,7 @@ child_weights$ipw_height <- 1/(child_model_summary[[1]]$predictions$response)
 child_weights$ipw_weight <- 1/(child_model_summary[[2]]$predictions$response)
 child_weights$ipw_hb <- NA_real_
 child_weights[!is.na(child_weights$valid_hb),]$ipw_hb <- 1/(child_model_summary[[3]]$predictions$response)
-saveRDS(child_weights,paste0(path_response_folder,"/child weights.RDS"))
+saveRDS(child_weights,paste0(path_response_folder,"/working/child weights.RDS"))
 
 
 
@@ -39,7 +39,7 @@ female_weights$ipw_glucose <- 1/(female_model_summary[[6]]$predictions$response)
 
 female_weights$ipw_hiv <- NA
 female_weights[!is.na(female_weights$consented_hiv),]$ipw_hiv <- 1/(female_model_summary[[7]]$predictions$response)
-saveRDS(female_weights,paste0(path_response_folder,"/female weights.RDS"))
+saveRDS(female_weights,paste0(path_response_folder,"/working/female weights.RDS"))
 
 
 male_weights <- male %>% 
@@ -57,5 +57,5 @@ male_weights$ipw_glucose <- 1/(male_model_summary[[6]]$predictions$response)
 
 male_weights$ipw_hiv <- NA
 male_weights[!is.na(male_weights$consented_hiv),]$ipw_hiv <- 1/(male_model_summary[[7]]$predictions$response)
-saveRDS(male_weights,paste0(path_response_folder,"/male weights.RDS"))
+saveRDS(male_weights,paste0(path_response_folder,"/working/male weights.RDS"))
 

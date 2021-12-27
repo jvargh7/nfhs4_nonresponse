@@ -86,6 +86,11 @@ nfhs4_ipw_estimates_district <- bind_rows(child_indicators_district %>% mutate(p
                                                "Moderate/severe blood pressure"),ordered=TRUE))
 
 
+nfhs4_ipw_estimates_district %>% 
+  group_by(indicator,population) %>% 
+  summarize(count_abs_gt1 = sum(abs(bias_ipw_unadj)>1)) %>% 
+  pivot_wider(names_from=population,values_from=count_abs_gt1)
+
 (nfhs4_ipw_estimates_district %>% 
     ggplot(data=.,aes(x=bias_ipw_unadj,y=indicator)) +
     geom_jitter(height=0.2,size=0.5) +

@@ -1,5 +1,5 @@
 source("preprocessing/nraux04_datasets for descriptive statistics.R")
-male_weights <- readRDS(paste0(path_response_folder,"/male weights.RDS"))
+male_weights <- readRDS(paste0(path_response_folder,"/working/male weights.RDS"))
 
 # From ~/nfhs5_analysis/nfhs4 estimates/male_indicators.R ----------------
 

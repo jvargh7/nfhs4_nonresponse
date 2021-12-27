@@ -1,6 +1,6 @@
 source("preprocessing/nraux04_datasets for descriptive statistics.R")
 
-child_weights <- readRDS(paste0(path_response_folder,"/child weights.RDS"))
+child_weights <- readRDS(paste0(path_response_folder,"/working/child weights.RDS"))
 
 # From ~/nfhs5_analysis/nfhs4 estimates/child_indicators.R ----------------
 child_df <- readRDS(paste0(path_ecological_analysis,"/working/iapr74_child.RDS")) %>% 
